@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: DE — Desert Emerald API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: de
+    description: Desert Emerald search and intelligence
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /de/search:
+    post:
+      operationId: deSearch
+      tags: [de]
+      summary: Search DE database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchInput"
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+
+  /de/stats:
+    get:
+      operationId: deStats
+      tags: [de]
+      summary: System statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResponse"
+
+  /de/suggest:
+    get:
+      operationId: deSuggest
+      tags: [de]
+      summary: Autocomplete suggestions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suggestion"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    SearchInput:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Search query in Arabic or English
+        specialty:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+          description: Filter by category e.g. Medical, صيدلية, General_Business
+        limit:
+          type: ["integer", "null"]
+
+    Entity:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        specialty:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        governorate:
+          type: ["string", "null"]
+        doctor_name:
+          type: ["string", "null"]
+        whatsapp:
+          type: ["string", "null"]
+        facebook:
+          type: ["string", "null"]
+        source:
+          type: ["string", "null"]
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+        - total
+        - query
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/Entity"
+        total:
+          type: integer
+        query:
+          type: string
+        answer:
+          type: ["string", "null"]
+          description: AI-style summary answer
+
+    StatsResponse:
+      type: object
+      required:
+        - total_entities
+        - total_with_phone
+        - total_verified
+        - top_specialties
+        - top_regions
+        - category_breakdown
+      properties:
+        total_entities:
+          type: integer
+        total_with_phone:
+          type: integer
+        total_verified:
+          type: integer
+        top_specialties:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatItem"
+        top_regions:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatItem"
+        category_breakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatItem"
+
+    StatItem:
+      type: object
+      required:
+        - name
+        - count
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+
+    Suggestion:
+      type: object
+      required:
+        - text
+        - type
+      properties:
+        text:
+          type: string
+        type:
+          type: string

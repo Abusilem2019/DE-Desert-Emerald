@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/de/"
+title = "DE — زمردة الصحراء"
+version = "1.0.0"
+id = "artifacts/de-assistant"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/de/" ]
+localPort = 23601
+
+[services.development]
+run = "pnpm --filter @workspace/de-assistant run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/de-assistant", "run", "build" ]
+publicDir = "artifacts/de-assistant/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23601"
+BASE_PATH = "/de/"
